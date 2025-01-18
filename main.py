@@ -5,13 +5,13 @@ def main():
     key = input('Введите ключ: ')
 
     result_encoded = vernam_encryption(message, key)
-    print([result_encoded], '\n')
+    print(['Зашифрованное сообщение: ' + result_encoded], '\n')
 
     encrypted_message = input('Введите зашифрованное сообщение: ')
     key = input('Введите ключ: ')
-    
+
     result_decoded = vernam_decryption(encrypted_message, key)
-    return print([result_decoded], '\n')
+    return print(['Расшифрованное сообщение: ' + result_decoded], '\n')
 
 
 

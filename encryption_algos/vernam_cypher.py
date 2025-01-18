@@ -41,7 +41,7 @@ def vernam_encryption(message, key):
         encrypted_message += chr(message_symbols[i] ^ key_symbols[i])
 
     encrypted_message_base64 = base64.b64encode(encrypted_message.encode()).decode()
-    return 'Зашифрованное сообщение: ' + encrypted_message_base64
+    return encrypted_message_base64
 
 
 def vernam_decryption(encrypted_message_base64, key):
@@ -58,7 +58,7 @@ def vernam_decryption(encrypted_message_base64, key):
     for i in range(len(message_symbols)):
         decrypted_message += chr(message_symbols[i] ^ key_symbols[i])
 
-    return 'Расшифрованное сообщение: ' + decrypted_message
+    return decrypted_message
 
 
 
