@@ -1,8 +1,63 @@
 import secrets
 import string
 import base64
+import sqlite3
 
-key_storage = {}
+
+
+'''
+----------------------------------------------------------------
+    Функции для БД
+----------------------------------------------------------------
+'''
+
+# создание БД и таблицы если ее нет 
+def creating_database():
+    db = sqlite3.connect('key_storage.db')
+    cursor = db.cursor()
+    cursor.execute('''
+
+    CREATE TABLE IF NOT EXISTS Keys (
+        id INTEGER PRIMARY KEY,   
+        key TEXT NOT NULL,    
+        value TEXT NOT NULL
+    )
+
+    ''')
+    db.commit()
+    db.close()
+
+    return print('БД готова к работе!')
+
+
+#  запись параметов 
+def set_params(key, value):
+    db = sqlite3.connect('key_storage.db')
+    cursor = db.cursor()
+
+    cursor.execute('INSERT INTO Keys (key, value) VALUES (?, ?)', (key, value))
+    db.commit()
+    db.close()
+
+    return print('Ключик на базе!')
+
+# получение значений (пока значения ключа)
+def get_params(key):
+    db = sqlite3.connect('key_storage.db')
+    cursor = db.cursor()
+
+    cursor.execute('SELECT value FROM Keys WHERE key = ?', (key,))
+    value = cursor.fetchone()
+    db.close()
+
+    return value[0] 
+
+
+'''
+----------------------------------------------------------------
+    Функции шифрования
+----------------------------------------------------------------
+'''
 
 def message_symbols_from_ASCII(message):
 
@@ -17,21 +72,17 @@ def message_symbols_from_ASCII(message):
 
 
 def vernam_encryption(message, key):
-
-    global key_storage
+    
+    creating_database()
 
     message_symbols = message_symbols_from_ASCII(message)
     message_symbols_count = len(message_symbols)
 
 
-    if key not in key_storage:
-        symbols_for_key = string.ascii_letters + string.digits + string.punctuation
+    symbols_for_key = string.ascii_letters + string.digits + string.punctuation
     
-        key_value = ''.join(secrets.choice(symbols_for_key) for _ in range(message_symbols_count))
-        key_storage[key] = key_value
-
-    else:
-        key_value = key_storage[key]
+    key_value = ''.join(secrets.choice(symbols_for_key) for _ in range(message_symbols_count))
+    set_params(key=key, value=key_value)
 
 
     key_symbols = message_symbols_from_ASCII(key_value)
@@ -46,9 +97,9 @@ def vernam_encryption(message, key):
 
 def vernam_decryption(encrypted_message_base64, key):
 
-    global key_storage
+    creating_database()
 
-    key_value = key_storage[key]
+    key_value = get_params(key)
     encrypted_message = base64.b64decode(encrypted_message_base64).decode()
 
     key_symbols = message_symbols_from_ASCII(key_value)
@@ -59,10 +110,4 @@ def vernam_decryption(encrypted_message_base64, key):
         decrypted_message += chr(message_symbols[i] ^ key_symbols[i])
 
     return decrypted_message
-
-
-
-
-
-
 
